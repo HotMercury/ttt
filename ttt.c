@@ -3,20 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define STACK_SIZE 9
+#define STACK_SIZE (3 * 3)
 
 struct stack {
     int top;
     char place[STACK_SIZE][3];
 };
-struct stack *s;
+struct stack *step;
 
-void initStack(struct stack **ps)
+void init_stack(struct stack **ps)
 {
     *ps = malloc(sizeof(struct stack));
     (*ps)->top = -1;
 }
-void destroyStack(struct stack *ps)
+void destroy_stack(struct stack *ps)
 {
     free(ps);
 }
@@ -37,7 +37,7 @@ void pop(struct stack *ps)
     }
     ps->top--;
 }
-void printOrder(struct stack *ps)
+void print_order(struct stack *ps)
 {
     if (ps->top == -1) {
         return;
@@ -224,7 +224,7 @@ int get_input(char player)
     char x = -1, y = -1, flag = 0;
     while (x < 0 || x > 2 || y < 0 || y > 2) {
         if (flag) {
-            pop(s);
+            pop(step);
         }
         printf("%c> ", player);
         int r = getline(&line, &line_length, stdin);
@@ -235,7 +235,7 @@ int get_input(char player)
         x = tolower(line[0]) - 'a';
         y = tolower(line[1]) - '1';
         flag = 1;
-        push(s, line);
+        push(step, line);
     }
     return x + 3 * y;
 }
@@ -245,31 +245,31 @@ int main()
     char table[] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
     char turn = 'X';
     char ai = 'O';
-    initStack(&s);
+    init_stack(&step);
     while (1) {
         char win = check_win(table);
         if (win == 'D') {
-            printOrder(s);
+            print_order(step);
             draw_board(table);
             printf("It is a draw!\n");
             break;
         } else if (win != ' ') {
-            printOrder(s);
+            print_order(step);
             draw_board(table);
             printf("%c won!\n", win);
-            destroyStack(s);
+            destroy_stack(step);
             break;
         }
 
         if (turn == ai) {
             negamax(table, 0, ai, -100000, 100000);
         } else {
-            printOrder(s);
+            print_order(step);
             draw_board(table);
             int move;
             move = get_input(turn);
             while (table[move] != ' ') {
-                pop(s);
+                pop(step);
                 move = get_input(turn);
             };
             table[move] = turn;
